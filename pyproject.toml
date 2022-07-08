@@ -1,0 +1,3 @@
+[lucid2sqlalchemy]
+base_model = "app.models.modelbase"
+default_base_model = "ModelBase"  # if no Parent in Lucidchart was defined [Child vs Child(Parent)]

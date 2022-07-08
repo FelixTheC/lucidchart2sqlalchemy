@@ -1,0 +1,28 @@
+Id,Name,Shape Library,Page ID,Contained By,Group,Line Source,Line Destination,Source Arrow,Destination Arrow,Status,Text Area 1,Text Area 2,Text Area 3
+1,Document,,,,,,,,,DRAFT,CamperPricing,,
+2,Page,,,,,,,,,,Page 1,,
+3,MinimalTextBlock,Standard,2,,,,,,,,1:*,,
+4,Class,UML,2,,,,,,,,Seasons(BaseModel),"is_main_season: bool
+start_date: date
+end_date: date",
+5,Class,UML,2,,,,,,,,BaseRate(BaseModel),"model_code: str
+booking_period_id: str
+rate: float  
+monthly_rate: bool
+",
+6,Class,UML,2,,,,,,,,SeasonalSurchargeRate(BaseModel),"model_code: str
+booking_period_id: str
+rate: float",
+7,Class,UML,2,,,,,,,,Camper(BaseModel),"model_code: str
+...
+",
+8,Class,UML,2,,,,,,,,BookingPeriod(BaseModel),period: int,
+9,MinimalTextBlock,Standard,2,,,,,,,,*:1,,
+10,Class,UML,2,,,,,,,,ServiceFee(BaseModel),"model_code: str
+service_fee: float",
+11,MinimalTextBlock,Standard,2,,,,,,,,1:1,,
+12,Line,,2,,,5,7,None,Arrow,,,,
+13,Line,,2,,,6,7,None,Arrow,,,,
+14,Line,,2,,,8,5,None,Arrow,,,,
+15,Line,,2,,,8,6,None,Arrow,,,,
+16,Line,,2,,,7,10,None,Arrow,,,,
