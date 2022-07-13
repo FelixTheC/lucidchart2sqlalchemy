@@ -1,0 +1,4 @@
+{
+  "base_model_path": "app.models.modelbase",
+  "default_base_model": "ModelBase"
+}

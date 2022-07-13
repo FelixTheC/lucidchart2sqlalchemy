@@ -1,3 +1,0 @@
-SQLAlchemy~=1.4.39
-pandas~=1.4.3
-toml~=0.10.2

@@ -1,3 +1,44 @@
-[lucid2sqlalchemy]
-base_model = "app.models.modelbase"
-default_base_model = "ModelBase"  # if no Parent in Lucidchart was defined [Child vs Child(Parent)]
+[tool.poetry]
+name = "lucidchart_2_sqlalchemy"
+version = "0.1.0"
+description = ""
+authors = ["FelixTheC <fberndt87@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+include = [
+    "license.md",
+]
+classifiers = [
+    "Environment :: Console",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+]
+homepage = "https://github.com/FelixTheC/lucidchart2sqlalchemy"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+SQLAlchemy ="^1.4.39"
+pandas = "^1.4.3"
+typer = {extras = ["all"], version = "*"}
+strongtyping = "*"
+
+[tool.poetry.dev-dependencies]
+flake8 = "*"
+isort = "*"
+black = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+lucidchart_2_sql= "lucidchart_2_sqlalchemy.main:app"
+
+[tool.black]
+line-length = 100
+target-version = ['py39']
+
+[tool.isort]
+combine_as_imports = true
+line_length = 100
+profile = "black"

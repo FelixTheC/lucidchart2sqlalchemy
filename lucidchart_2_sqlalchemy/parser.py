@@ -1,18 +1,14 @@
 import re
 from pathlib import Path
-from typing import List
-from typing import Literal
-from typing import Tuple
+from typing import List, Literal, Tuple
 
 import pandas as pd
-import toml
+from strongtyping.strong_typing import match_typing
 
-from src.utils import COLUMN_NAMES
-from src.utils import SQLALCHEMY_TYPES
+from lucidchart_2_sqlalchemy.utils import COLUMN_NAMES, SQLALCHEMY_TYPES, get_json_data
 
-_config = toml.load(Path(__file__).parent.parent / Path("pyproject.toml"))
-_CONFIG = _config["lucid2sqlalchemy"]
-TAB = "    "
+_CONFIG = get_json_data()
+_TAB = "    "
 _BASE_FOLDER = Path(__file__).parent.parent / Path("lucidchart_models")
 
 if not _BASE_FOLDER.exists():
@@ -32,16 +28,18 @@ class SqlAlchemyObject:
         self.fields = fields
 
     def __write_imports(self):
-        imports = ["import sqlalchemy as sa",
-                   f"from {_CONFIG['base_model']} import {self.base_class_name}",
-                   "\n\n"]
-        return '\n'.join(imports)
+        imports = [
+            "import sqlalchemy as sa",
+            f"from {_CONFIG['base_model_path']} import {self.base_class_name}",
+            "\n\n",
+        ]
+        return "\n".join(imports)
 
     def __write_class_definition(self):
         return f"class {self.class_name}({self.base_class_name}):\n"
 
     def __write_table_definition(self):
-        return f'{TAB}__tablename__ = "{self.table_name}"\n'
+        return f'{_TAB}__tablename__ = "{self.table_name}"\n'
 
     def __write_field_definitions(self):
         field_definitions = []
@@ -53,9 +51,12 @@ class SqlAlchemyObject:
             if "_id" in name:
                 reference_name = name.replace("_id", ".id")
                 field_definitions.append(
-                    f'{TAB}{name}: {type_} = sa.Column(sa.{sqlalchemy_field}, sa.ForeignKey("{reference_name}"))')
+                    f'{_TAB}{name}: {type_} = sa.Column(sa.{sqlalchemy_field}, sa.ForeignKey("{reference_name}"))'  # noqa: E501
+                )
             else:
-                field_definitions.append(f"{TAB}{name}: {type_} = sa.Column(sa.{sqlalchemy_field})")
+                field_definitions.append(
+                    f"{_TAB}{name}: {type_} = sa.Column(sa.{sqlalchemy_field})"
+                )
         return "\n".join(field_definitions)
 
     def generate_file(self):
@@ -68,31 +69,34 @@ class SqlAlchemyObject:
             file.write("\n")
 
 
-def extract_parent_class(name: str) -> Tuple[str, str]:
-    if not "(" in name:
-        return name, _CONFIG.get('default_base_model', "")
+def _extract_parent_class(name: str) -> Tuple[str, str]:
+    if "(" not in name:
+        return name, _CONFIG.get("default_base_model", "")
     else:
         cls_name, tmp_parent_class = name.split("(")
         parent_class = tmp_parent_class.removesuffix(")")
         return cls_name, parent_class
 
 
-def generate_table_name(name: str) -> str:
+def _generate_table_name(name: str) -> str:
     start_char = [char.lower() for char in re.findall(r"[A-Z]", name)]
     word_parts = re.split(r"[A-Z]", name)[1:]
     words = [x + y for x, y in zip(start_char, word_parts)]
     return "_".join(words)
 
 
-def generate_columns(data: str) -> List[Tuple[str, str]]:
+def _generate_columns(data: str) -> List[Tuple[str, str]]:
     return [tuple(val.replace(" ", "").split(":")) for val in data.split("\n")]
 
 
-def generate_sqlalchemy_object(name: str, fields: str):
-    cls_name, parent_cls = extract_parent_class(name)
-    return SqlAlchemyObject(generate_table_name(cls_name), cls_name, parent_cls, generate_columns(fields))
+def _generate_sqlalchemy_object(name: str, fields: str):
+    cls_name, parent_cls = _extract_parent_class(name)
+    return SqlAlchemyObject(
+        _generate_table_name(cls_name), cls_name, parent_cls, _generate_columns(fields)
+    )
 
 
+@match_typing
 def main(csv_file: Path, language: Literal["de", "en"]):
     df = pd.read_csv(csv_file)
     tmp_df = df[df[COLUMN_NAMES[language]["library"]] == "UML"]
@@ -103,11 +107,11 @@ def main(csv_file: Path, language: Literal["de", "en"]):
     for row in uml_df.iterrows():
         _, data = row
         name, fields = data
-        objs.append(generate_sqlalchemy_object(name, fields))
+        objs.append(_generate_sqlalchemy_object(name, fields))
 
     for obj in objs:
         obj.generate_file()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(Path("../CamperVanPricing_en_v2.csv"), "en")
