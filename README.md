@@ -6,6 +6,13 @@
 - when creating UML charts in Lucidchart I needed to create these objects "twice" with
 this package you're being able to generate python-files including SqlAlchemy-Models
 
+## How To Use
+```shell
+$ lucidchart_2_sql --help
+
+```
+
+## Example
 ![uml_diagrams](CamperVanPricing.png)
 - will generate models like this
 ```python

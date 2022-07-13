@@ -31,4 +31,4 @@ jobs:
         run: |
           poetry build --format=wheel
           pip install dist/*
-          lucidchart_2_sqlalchemy --help
+          lucidchart_2_sql --help
