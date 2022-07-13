@@ -3,16 +3,17 @@ from pathlib import Path
 from typing import List, Literal, Tuple
 
 import pandas as pd
+import typer
 from strongtyping.strong_typing import match_typing
 
 from lucidchart_2_sqlalchemy.utils import COLUMN_NAMES, SQLALCHEMY_TYPES, get_json_data
 
 _CONFIG = get_json_data()
 _TAB = "    "
-_BASE_FOLDER = Path(__file__).parent.parent / Path("lucidchart_models")
+_BASE_FOLDER = Path(_CONFIG.get("base_folder", ""))
 
 if not _BASE_FOLDER.exists():
-    _BASE_FOLDER.mkdir()
+    _BASE_FOLDER.mkdir(parents=True)
 
 
 class SqlAlchemyObject:
@@ -98,6 +99,10 @@ def _generate_sqlalchemy_object(name: str, fields: str):
 
 @match_typing
 def main(csv_file: Path, language: Literal["de", "en"]):
+    if not _BASE_FOLDER:
+        typer.secho("Please run set_config_file_path.", fg=typer.colors.RED)
+        raise typer.Abort()
+
     df = pd.read_csv(csv_file)
     tmp_df = df[df[COLUMN_NAMES[language]["library"]] == "UML"]
     uml_df = tmp_df[[COLUMN_NAMES[language]["area_1"], COLUMN_NAMES[language]["area_2"]]]
