@@ -19,7 +19,9 @@ def display_config():
 
 
 @app.command()
-def set_config_file_path(file_path: str = typer.Argument(..., help="Only the folder-name is required.")):
+def set_config_file_path(
+    file_path: str = typer.Argument(..., help="Only the folder-name is required.")
+):
     json_data = get_json_data()
     json_data["base_folder"] = file_path
     save_json_data(json_data)
