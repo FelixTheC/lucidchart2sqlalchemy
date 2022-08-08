@@ -16,11 +16,12 @@ classifiers = [
 homepage = "https://github.com/FelixTheC/lucidchart2sqlalchemy"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "3.10"
 SQLAlchemy ="^1.4.39"
 pandas = "^1.4.3"
 typer = {extras = ["all"], version = "*"}
 strongtyping = "*"
+
 
 [tool.poetry.dev-dependencies]
 flake8 = "*"
@@ -36,7 +37,7 @@ lucidchart_2_sql= "lucidchart_2_sqlalchemy.main:app"
 
 [tool.black]
 line-length = 100
-target-version = ['py39']
+target-version = ['py310']
 
 [tool.isort]
 combine_as_imports = true
