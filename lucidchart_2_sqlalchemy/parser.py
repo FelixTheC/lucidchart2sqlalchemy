@@ -49,16 +49,47 @@ class SqlAlchemyObject:
                 continue
             name, type_ = field
             sqlalchemy_field = SQLALCHEMY_TYPES[type_]
+            val, name = self.__optional_parameters(name)
+            default, name = self.__default_or_on_update(name)
+
             if "_id" in name:
                 reference_name = name.replace("_id", ".id")
                 field_definitions.append(
-                    f'{_TAB}{name}: {type_} = sa.Column(sa.{sqlalchemy_field}, sa.ForeignKey("{reference_name}"))'  # noqa: E501
+                    f'{_TAB}{name}: {type_} = sa.Column(sa.{sqlalchemy_field}, sa.ForeignKey("{reference_name}"){val}'  # noqa: E501
                 )
             else:
-                field_definitions.append(
-                    f"{_TAB}{name}: {type_} = sa.Column(sa.{sqlalchemy_field})"
-                )
+                line = f"{_TAB}{name}: {type_} = sa.Column(sa.{sqlalchemy_field}{val}"
+                field_definitions.append(line)
         return "\n".join(field_definitions)
+
+    def __optional_parameters(self, name):
+        match [name[val] for val in range(2)]:
+            case ["*", "*"]:
+                return self.__primary_key(name[2:]), name[2:]
+            case ["*", _]:
+                return self.__nullable(), name[1:]
+            case _:
+                return ")", name
+
+    def __primary_key(self, name):
+        if SQLALCHEMY_TYPES[name] in (SQLALCHEMY_TYPES("INT"),
+                                      SQLALCHEMY_TYPES["SMALLINT"],
+                                      SQLALCHEMY_TYPES["BIGINT"]):
+            return "primary_key=True, autoincrement=True"
+        return "primary_key=True"
+
+    def __nullable(self):
+        return f", nullable=False)"
+
+    def __default_or_on_update(self, name):
+        if "=" in name:
+            name, default = name.split("=", maxsplit=2)
+            return f"default={default.strip()}", name.strip()
+        elif "^=" in name:
+            name, default = name.split("^=", maxsplit=2)
+            return f"onupdate={default.strip()}", name.strip()
+        else:
+            return "", name
 
     def generate_file(self):
         with (_BASE_FOLDER / Path(f"{self.table_name}.py")).open("w") as file:
