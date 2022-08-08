@@ -8,7 +8,7 @@ from lucidchart_2_sqlalchemy.utils import display_settings, get_json_data, save_
 app = typer.Typer()
 
 
-def complete_languages(ctx: typer.Context, language: str):
+def complete_languages(language: str):
     return "de", "en"
 
 
